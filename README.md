@@ -276,13 +276,13 @@ Note that we are calling `AppState.SetProperty()` passing ourself (`this`), the 
 
 Here we have replaced currentCount with `AppState.Counter`. 
 
-Put breakpoints on lines 21 and 47
+Put breakpoints on lines 41 and 65 of *CascadingAppState.razor*
 
-Go to the `Counter` page, and click the button. Now when it breaks on line 47, you can take action in the toolbar because you know some other component modified the `Counter` property of the `CascadingAppState` reference. 
+Go to the `Counter` page, and click the button. Now when it breaks on line 65, you can take action in the toolbar because you know some other component modified the `Counter` property of the `CascadingAppState` reference. 
 
 Notice that our `counter` page remembers the value between navigations. That's because it is being stored in the `CascadingAppStateProvider`!
 
-Click the **Update Message** button in the Toolbar to test the breakpoint on line 21.
+Click the **Update Message** button in the Toolbar to test the breakpoint on line 41.
 
 ![image-20221001130513973](md-images/image-20221001130513973.png)
 
@@ -396,6 +396,8 @@ public interface IAppState
 }
 ```
 
+Note that we only require `get` handlers for each property. That's because our setters are private.
+
 `System.Text.Json` will not deserialize to an interface, so we have to create a class that implements the interface:
 
 ```c#
@@ -409,7 +411,7 @@ public class AppStateData : IAppState
 }
 ```
 
-Replace *CascadingAppState.razor* with the following:
+Now replace *CascadingAppState.razor* with the following:
 
 ```c#
 @implements IAppState
@@ -501,7 +503,7 @@ Replace *CascadingAppState.razor* with the following:
                 if (DateTime.Now <= appStateData.LastAccessed
                     .AddSeconds(appStateData.TimeToLiveInSeconds))
                 {
-                    // Yes! use reflection to set our property values
+                    // Yes! use our own SetProperty method to set our property values
                     var properties = appStateData.GetType().GetProperties();
                     foreach (var property in properties)
                     {
@@ -571,7 +573,7 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
             if (DateTime.Now <= appStateData.LastAccessed
                 .AddSeconds(appStateData.TimeToLiveInSeconds))
             {
-                // Yes! use reflection to set our property values
+                // Yes! use our own SetProperty method to set our property values
                 var properties = appStateData.GetType().GetProperties();
                 foreach (var property in properties)
                 {

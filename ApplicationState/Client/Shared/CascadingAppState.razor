@@ -87,7 +87,7 @@
                 if (DateTime.Now <= appStateData.LastAccessed
                     .AddSeconds(appStateData.TimeToLiveInSeconds))
                 {
-                    // Yes! use reflection to set our property values
+                    // Yes! use our own SetProperty method to set our property values
                     var properties = appStateData.GetType().GetProperties();
                     foreach (var property in properties)
                     {
