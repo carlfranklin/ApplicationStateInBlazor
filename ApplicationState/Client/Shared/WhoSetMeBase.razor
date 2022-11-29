@@ -1,0 +1,79 @@
+﻿@using System.Diagnostics
+@code {
+
+    /// <summary>
+    /// Returns the name of the component that set a property.
+    /// Should be called from setter of parent component's property handler
+    /// </summary>
+    public string Setter
+    {
+        get
+        {
+            string SetterComponent = "";    // our return value
+
+            // Get a stack trace with field information
+            var stackTrace = new StackTrace(true);
+            // Get all the frames
+            var frames = stackTrace.GetFrames();
+            if (frames != null)
+            {
+                // Create a new list of file names
+                var fileNames = new List<string>();
+                foreach (var frame in frames)
+                {
+                    // get the filename (if one exists)
+                    var fileName = frame.GetFileName();
+                    // do we have a filename?
+                    if (fileName != null)
+                    {
+                        // Yes.
+                        // Trim it up
+                        fileName = fileName.Trim();
+                        // Is this a razor component?
+                        if (fileName.EndsWith(".razor"))
+                        {
+                            // Yes!
+                            // Path.GetFileName() does not like this path, so
+                            // I have to get the filename manually
+                            var pos = fileName.LastIndexOf(@"\");
+                            if (pos != -1)
+                            {
+                                // get just the filename
+                                string justFileName = fileName.Substring(pos + 1);
+                                // remove the .razor extension
+                                string noExtension =
+                                    Path.GetFileNameWithoutExtension(justFileName);
+                                // add it to the list
+                                fileNames.Add(noExtension);
+                            }
+                        }
+                    }
+                }
+                // At this point our list should have all the files in the stack
+                // in order.
+                // We need to find ourself in here:
+                var myself = (from x in fileNames
+                              where x == "WhoSetMeBase"
+                              select x).FirstOrDefault();
+                // This shoudld not be null.
+                if (myself != null)
+                {
+                    // Get the index of the next file
+                    var index = fileNames.IndexOf(myself) + 1;
+                    // Find the next component that is not CascadingAppState
+                    for (int i = index; i < fileNames.Count; i++)
+                    {
+                        if (fileNames[i] != "CascadingAppState")
+                        {
+                            // This will always be the component name that called us.
+                            SetterComponent = fileNames[i];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return SetterComponent;
+        }
+    }
+}

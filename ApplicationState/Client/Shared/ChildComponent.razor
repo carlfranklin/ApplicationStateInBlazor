@@ -1,0 +1,16 @@
+﻿<h3>ChildComponent</h3>
+
+<button class="btn btn-primary" @onclick="UpdateMessageButtonClicked">Update Message</button>
+<br />
+<br />
+<p>@AppState.Message</p>
+
+@code {
+
+    [CascadingParameter] public CascadingAppState AppState { get; set; }
+
+    void UpdateMessageButtonClicked()
+    {
+        AppState.SetProperty(this, "Message", "Child Component Updated Message At " + DateTime.Now.ToLongTimeString());
+    }
+}

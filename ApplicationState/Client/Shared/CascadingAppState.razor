@@ -1,0 +1,116 @@
+﻿@implements IAppState
+@inject ILocalStorageService LocalStorageService
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private string Caller = "";
+
+    public int TimeToLiveInSeconds { get; set; } = 60;
+    public DateTime LastAccessed { get; set; } = DateTime.Now;
+
+    public void SetProperty(ComponentBase caller, string PropertyName,
+                            object PropertyValue)
+    {
+        try
+        {
+            var prop = this.GetType().GetProperty(PropertyName);
+            if (prop != null)
+            {
+                this.Caller = caller.GetType().Name;
+                prop.SetValue(this, PropertyValue);
+                SaveChanges();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private string message = "";
+    public string Message
+    {
+        get => message;
+        private set
+        {
+            message = value;
+            if (Caller == "Toolbar")
+            {
+                // The Toolbar component changed the AppState Message property
+            }
+        }
+    }
+
+    private bool enabled = false;
+    public bool Enabled
+    {
+        get => enabled;
+        private set
+        {
+            enabled = value;
+        }
+    }
+
+    private int counter = 0;
+    public int Counter
+    {
+        get => counter;
+        private set
+        {
+            counter = value;
+            if (Caller == "Counter")
+            {
+                // The Counter page changed the AppState Counter property
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) // do this only once
+        {
+            // Get the JSON data
+            var json = await LocalStorageService.GetItemAsStringAsync("AppStateJson");
+            if (json != null && json != "")
+            {
+                // Deserialize to AppStateData
+                var appStateData = JsonSerializer.Deserialize<AppStateData>(json);
+                // Are we within the time window?
+                if (DateTime.Now <= appStateData.LastAccessed
+                    .AddSeconds(appStateData.TimeToLiveInSeconds))
+                {
+                    // Yes! use reflection to set our property values
+                    var properties = appStateData.GetType().GetProperties();
+                    foreach (var property in properties)
+                    {
+                        var type = property.PropertyType;
+                        var value = property.GetValue(appStateData);
+                        SetProperty(this, property.Name, value);
+                    }
+                    // Re-render
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+    }
+
+    public void SaveChanges()
+    {
+        // LocalStorage allows up to 5MB by default.
+        // Test: https://arty.name/localstorage.html
+        // TIP: Never store sensitive data in LocalStorage
+
+        LastAccessed = DateTime.Now;
+        var appstate = (IAppState)this;
+        var json = System.Text.Json.JsonSerializer.Serialize(appstate);
+        LocalStorageService.SetItemAsStringAsync("AppStateJson", json);
+    }
+}

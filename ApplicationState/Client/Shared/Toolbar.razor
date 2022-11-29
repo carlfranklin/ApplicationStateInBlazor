@@ -1,0 +1,24 @@
+﻿<div style="height:42px;">
+    <span style="font-size:x-large">@AppState.Message&nbsp;</span>
+    @if (AppState.Enabled)
+    {
+            <button class="btn btn-success">Enabled</button>
+    }
+    else
+    {
+            <button class="btn btn-danger">Disabled</button>
+    }
+    &nbsp;
+    <button class="btn btn-primary" @onclick="UpdateMessageButtonClicked">Update Message</button>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    public CascadingAppState AppState { get; set; }
+
+    void UpdateMessageButtonClicked()
+    {
+        AppState.SetProperty(this, "Message", "Message Updated At " + DateTime.Now.ToLongTimeString());
+    }
+}
