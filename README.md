@@ -1,5 +1,21 @@
 # Handling Application State in Blazor
 
+NOTE:
+
+This episode updates two BlazorTrain videos from 2020, each linking to code in zip files. Here are the original links:
+
+**Episode 15: Application State**
+
+YouTube: https://youtu.be/BB4lK2kfKf0
+
+Code: https://blazorroadshow.azurewebsites.net/blazortrainfiles/ApplicationState.zip
+
+**Episode 17: Persisiting Application State**
+
+YouTube: https://youtu.be/ib_6mYbkL2s
+
+Code: https://blazorroadshow.azurewebsites.net/blazortrainfiles/PersistingAppState.zip
+
 ### What is Application State?
 
 Application State (or app state) is all of the variables (objects, lists, etc.) that you keep alive in your application while in use.  So far we have been keeping all of our variables in code blocks inside of pages. The problem with this approach is that those variables get reinitialized every time the page is navigated to or refreshed. 
