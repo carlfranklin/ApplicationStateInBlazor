@@ -303,12 +303,12 @@ Click the **Update Message** button in the Toolbar to test the breakpoint on lin
 #### Add a Razor Component called ChildComponent to Shared folder
 
 ```c#
-<h3>ChildComponent</h3>
-
-<button class="btn btn-primary" @onclick="UpdateMessageButtonClicked">Update Message</button>
-<br />
-<br />
-<p>@AppState.Message</p>
+<div style="background-color:lightgray;padding:20px;">
+    <button class="btn btn-primary" @onclick="UpdateMessageButtonClicked">Update Message</button>
+    <br />
+    <br />
+    <h3>@AppState.Message</h3>
+</div>
 
 @code {
 
@@ -316,7 +316,7 @@ Click the **Update Message** button in the Toolbar to test the breakpoint on lin
 
     void UpdateMessageButtonClicked()
     {
-        AppState.SetProperty(this, "Message", "Child Component Updated Message At " 
+        AppState.SetProperty(this, "Message", "Child Component Updated Message At "
             + DateTime.Now.ToLongTimeString());
     }
 }
@@ -358,7 +358,7 @@ Click the **Update Message** button in the Toolbar to test the breakpoint on lin
 
 Run the app to confirm that the child component can change AppState values.
 
-![image-20221129075032246](md-images/image-20221129075032246.png)
+![image-20221207225738656](md-images/image-20221207225738656.png)
 
 ## Persisting Application State
 
@@ -639,19 +639,19 @@ However, we call `SetProperty` with `SaveChanges` set to `false` from `OnAfterRe
 
 Press F5.
 
-![image-20221106115725066](md-images/image-20221106115725066.png)
+![image-20221207225851388](md-images/image-20221207225851388.png)
 
 Make some changes
 
-![image-20221129074914495](md-images/image-20221129074914495.png)
+![image-20221207225915924](md-images/image-20221207225915924.png)
 
 Close the app right after making a change, and then run it again within 60 seconds. The AppState will load from LocalStorage:
 
-![image-20221106115737330](md-images/image-20221129074914495.png)
+![image-20221207225915924](md-images/image-20221207225915924.png)
 
 If you close the app and wait at least 60 seconds before running it again, the AppState gets reset and you're back to square one.
 
-![image-20221106115725066](md-images/image-20221106115725066.png)
+![image-20221207225851388](md-images\image-20221207225851388.png)
 
 ### Only Persist Certain Properties
 
