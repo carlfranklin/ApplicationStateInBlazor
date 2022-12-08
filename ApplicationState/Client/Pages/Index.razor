@@ -21,6 +21,7 @@
 
     void UpdateMessageButtonClicked()
     {
-        AppState.SetProperty(this, "Message", "Message Updated At " + DateTime.Now.ToLongTimeString());
+        AppState.SetProperty(this, "Message", "Message Updated At "
+                             + DateTime.Now.ToLongTimeString());
     }
 }

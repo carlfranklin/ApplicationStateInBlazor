@@ -16,7 +16,7 @@
     public DateTime LastAccessed { get; set; } = DateTime.Now;
 
     public void SetProperty(ComponentBase caller, string PropertyName,
-                            object PropertyValue)
+                            object PropertyValue, bool SaveChanges = true)
     {
         try
         {
@@ -25,7 +25,8 @@
             {
                 this.Caller = caller.GetType().Name;
                 prop.SetValue(this, PropertyValue);
-                SaveChanges();
+                if (SaveChanges)
+                    this.SaveChanges();
                 StateHasChanged();
             }
         }
@@ -93,7 +94,7 @@
                     {
                         var type = property.PropertyType;
                         var value = property.GetValue(appStateData);
-                        SetProperty(this, property.Name, value);
+                        SetProperty(this, property.Name, value, false);
                     }
                     // Re-render
                     await InvokeAsync(StateHasChanged);

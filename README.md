@@ -1,8 +1,6 @@
 # Handling Application State in Blazor
 
-NOTE:
-
-This episode updates two BlazorTrain videos from 2020, each linking to code in zip files. Here are the original links:
+> **NOTE:**  This episode updates two BlazorTrain videos from 2020, each linking to code in zip files. Here are the original links:
 
 **Episode 15: Application State**
 
@@ -447,8 +445,8 @@ Now replace *CascadingAppState.razor* with the following:
     public int TimeToLiveInSeconds { get; set; } = 60;
     public DateTime LastAccessed { get; set; } = DateTime.Now;
 
-    public void SetProperty(ComponentBase caller, string PropertyName, 
-                            object PropertyValue)
+    public void SetProperty(ComponentBase caller, string PropertyName,
+                            object PropertyValue, bool SaveChanges = true)
     {
         try
         {
@@ -457,11 +455,12 @@ Now replace *CascadingAppState.razor* with the following:
             {
                 this.Caller = caller.GetType().Name;
                 prop.SetValue(this, PropertyValue);
-                SaveChanges();
+                if (SaveChanges)
+                    this.SaveChanges();
                 StateHasChanged();
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }
@@ -525,7 +524,7 @@ Now replace *CascadingAppState.razor* with the following:
                     {
                         var type = property.PropertyType;
                         var value = property.GetValue(appStateData);
-                        SetProperty(this, property.Name, value);
+                        SetProperty(this, property.Name, value, false);
                     }
                     // Re-render
                     await InvokeAsync(StateHasChanged);
@@ -595,7 +594,7 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
                 {
                     var type = property.PropertyType;
                     var value = property.GetValue(appStateData);
-                    SetProperty(this, property.Name, value);
+                    SetProperty(this, property.Name, value, false);
                 }
                 // Re-render
                 await InvokeAsync(StateHasChanged);
@@ -603,12 +602,40 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
         }
     }
 }
-
 ```
 
 This happens after the first render.
 
 We're reading the JSON from local storage, deserializing it into an `AppStateData`object (remember, we can't serialize to an interface), and then using reflection to set the values that are part of our interface.
+
+We also added a bool argument to the `SetProperty` method:
+
+```c#
+public void SetProperty(ComponentBase caller, string PropertyName,
+    object PropertyValue, bool SaveChanges = true)
+{
+    try
+    {
+        var prop = this.GetType().GetProperty(PropertyName);
+        if (prop != null)
+        {
+            this.Caller = caller.GetType().Name;
+            prop.SetValue(this, PropertyValue);
+            if (SaveChanges)
+                this.SaveChanges();
+            StateHasChanged();
+        }
+    }
+    catch (Exception ex)
+    {
+
+    }
+}
+```
+
+The `SaveChanges` argument is true by default, and therefore changes are saved. 
+
+However, we call `SetProperty` with `SaveChanges` set to `false` from `OnAfterRenderAsync` because we are initializing  the data from a JSON file, and therefore don't want to save that same JSON file again.
 
 Press F5.
 
